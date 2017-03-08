@@ -29,10 +29,11 @@ function get_tags(href) {
         $tag_id = "post_tags_" + post_id;
         var allTags = [];
         // Get each tag on that page.
-        while ((myArray = linkRe.exec(data)) !== null) {
-            $cur_tag = myArray[0].match(tagRe)[1];
+        while ((myArray = tagsRe.exec(data)) !== null) {
+            $cur_tag = myArray[0].match(tagRe)[1].trim();
             allTags.push($href_pre + $cur_tag + $href_mid + $cur_tag + $href_suf);
         }
+        debug("The tags: " + allTags);
         // Put it all together.
         $tag_link = ($base_url + "/tags/").replace(".com//", ".com/");
         document.getElementById($tag_id).innerHTML = "<a href='" + $tag_link + "'>Tags</a>: " + allTags.join(", ");
@@ -47,7 +48,7 @@ if ($("div#posts > h1.posttitle").length === 0)
     debug("This page has posts.");
     // Set up some basics.
     $base_url = "https://" + window.location.hostname;
-    var linkRe = /<a class="taglink" href="[^"]+"  rel="tag" title="[^"]+">[^<]+<\/a>/g;
+    var tagsRe = /<a [^>]+(rel="tag"|class="taglink")[^>]*>([^<]+)<\/a>/g;
     var tagRe = />([^<]+)</;
     var commRe = /^[0-9]+ (comment|answer)s?$/;
     var postIdRe = /\/([0-9]+)\//;
@@ -56,7 +57,15 @@ if ($("div#posts > h1.posttitle").length === 0)
     $href_suf = "</a>";
 
     // Get the posts on the page.
-    $all_posts = $("#posts *[class*='byline']");
+    $post_paths = [
+        "#posts *[class*='byline']",
+        "#boxyleft *[class*='byline']"
+    ];
+    for (var p = 0; p < $post_paths.length; p++)
+    {
+        $all_posts = $($post_paths[p]);
+        if ($all_posts.length > 0) break;
+    }
     debug("There are " + $all_posts.length + " posts on this page.");
 
     // For each post on the page...
@@ -65,7 +74,14 @@ if ($("div#posts > h1.posttitle").length === 0)
         $href = '';
         if (window.location.hostname == "jobs.metafilter.com")
         {
-            $href = $(this).prev().prev().children()[0].getAttribute("href");
+            if ($(this).prev().prev().prop("tagName").toLowerCase() == "a")
+            {
+                $href = $(this).prev().prev().attr("href");
+            }
+            else
+            {
+                $href = $(this).prev().prev().children()[0].getAttribute("href");
+            }
         }
         else
         {
@@ -85,15 +101,26 @@ if ($("div#posts > h1.posttitle").length === 0)
         }
         $href = $href.replace(".com//", ".com/");
         $href = window.location.protocol + $href.split(":")[1];
-        debug("The post's link: " + $href);
+        debug("  The post's link: " + $href);
 
         // Create and append the new tags line.
         $tag_id = "post_tags_" + $href.match(postIdRe)[1];
         $tag_link = "<div class='untagged' style='font-size: 12px; line-height:14px; margin-top: 5px; padding: 5px 0 3px; border-top: 1px solid #668;' id='" + $tag_id + "'>Tags: </div>";
         $(this).append($tag_link);
-        debug("The tag line has been appended.");
+        debug("  The tag line has been appended.");
 
         // Get the tags, woo.
         get_tags($href);
     });
 }
+
+/* Test links:
+https://www.metafilter.com/
+https://ask.metafilter.com/
+https://fanfare.metafilter.com/
+https://projects.metafilter.com/
+https://music.metafilter.com/
+https://jobs.metafilter.com/
+https://irl.metafilter.com/
+https://metatalk.metafilter.com/
+*/
