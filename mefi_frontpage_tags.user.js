@@ -5,7 +5,9 @@
 // @description  Display MetaFilter post tags on the front page, for ease of filtering.
 // @author       Xtina Schelin
 // @match        https://*.metafilter.com/*
+// @match        http://*.metafilter.com/*
 // @exclude      https://bestof.metafilter.com/*
+// @exclude      http://bestof.metafilter.com/*
 // @grant        none
 // ==/UserScript==
 
@@ -82,13 +84,14 @@ if ($("div#posts > h1.posttitle").length === 0)
             $href = $base_url + "/" + $href;
         }
         $href = $href.replace(".com//", ".com/");
-        $href = $href.replace("http://", "https://");
+        $href = window.location.protocol + $href.split(":")[1];
         debug("The post's link: " + $href);
 
         // Create and append the new tags line.
         $tag_id = "post_tags_" + $href.match(postIdRe)[1];
         $tag_link = "<div class='untagged' style='font-size: 12px; line-height:14px; margin-top: 5px; padding: 5px 0 3px; border-top: 1px solid #668;' id='" + $tag_id + "'>Tags: </div>";
         $(this).append($tag_link);
+        debug("The tag line has been appended.");
 
         // Get the tags, woo.
         get_tags($href);
