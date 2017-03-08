@@ -17,7 +17,8 @@ function get_tags(href) {
         var allTags = [];
         // Get each tag on that page.
         while ((myArray = linkRe.exec(data)) !== null) {
-            allTags.push(myArray[0].match(tagRe)[1]);
+            $cur_tag = myArray[0].match(tagRe)[1];
+            allTags.push($href_pre + $cur_tag + $href_mid + $cur_tag + $href_suf);
         }
         // Put it all together.
         document.getElementById($tag_id).innerHTML = "Tags: " + allTags.join(", ");
@@ -30,6 +31,9 @@ $base_url = "https://" + window.location.hostname;
 var linkRe = /<a class="taglink" href="[^"]+"  rel="tag" title="[^"]+">[^<]+<\/a>/g;
 var tagRe = />([^<]+)</;
 var commRe = /^[0-9]+ comments?$/;
+$href_pre = "<a href='" + $base_url + "/tags/";
+$href_mid = "'>";
+$href_suf = "</a>";
 
 // For each post on the page...
 $("#posts div.copy.post span[class*='byline']").each(function( index ) {
