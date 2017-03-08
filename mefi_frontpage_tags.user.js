@@ -36,7 +36,7 @@ $("#posts div.copy.post span.postbyline").each(function( index ) {
     $href = $(this).children()[1].getAttribute("href");
     // Create and append the new tags line.
     $tag_id = "post_tags_" + $href.split("/")[1];
-    $tag_link = "<div class='untagged' style='font-size: 12px; line-height:14px; border-top: 1px solid #668;' id='" + $tag_id + "'></div>";
+    $tag_link = "<div class='untagged' style='font-size: 12px; line-height:14px; margin-top: 5px; padding-top: 5px; border-top: 1px solid #668;' id='" + $tag_id + "'></div>";
     $(this).append($tag_link);
     // Get the tags, woo.
     get_tags($href);
