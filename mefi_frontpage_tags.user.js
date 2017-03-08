@@ -5,6 +5,7 @@
 // @description  Display MetaFilter post tags on the front page, for ease of filtering.
 // @author       Xtina Schelin
 // @match        https://www.metafilter.com/
+// @match        https://metatalk.metafilter.com/
 // @grant        none
 // ==/UserScript==
 
@@ -25,18 +26,27 @@ function get_tags(href) {
 }
 
 // Set up some basics.
-$base_url = "https://www.metafilter.com";
+$base_url = "https://" + window.location.hostname;
 var linkRe = /<a class="taglink" href="[^"]+"  rel="tag" title="[^"]+">[^<]+<\/a>/g;
 var tagRe = />([^<]+)</;
-var idRe = /<link rel="canonical" href="http:..www.metafilter.com.([0-9]+)\//;
+var commRe = /^[0-9]+ comments?$/;
 
 // For each post on the page...
-$("#posts div.copy.post span.postbyline").each(function( index ) {
+$("#posts div.copy.post span[class*='byline']").each(function( index ) {
     // Get the post link.
-    $href = $(this).children()[1].getAttribute("href");
+    $href = '';
+    for (var q = 0; q < $(this).find("a").length; q++)
+    {
+        $href_text = $(this).find("a")[q].innerHTML;
+        if ($href_text.match(commRe) !== null)
+        {
+            $href = $(this).find("a")[q].getAttribute("href");
+            break;
+        }
+    }
     // Create and append the new tags line.
     $tag_id = "post_tags_" + $href.split("/")[1];
-    $tag_link = "<div class='untagged' style='font-size: 12px; line-height:14px; margin-top: 5px; padding-top: 5px; border-top: 1px solid #668;' id='" + $tag_id + "'></div>";
+    $tag_link = "<div class='untagged' style='font-size: 12px; line-height:14px; margin-top: 5px; padding: 5px 0 3px; border-top: 1px solid #668;' id='" + $tag_id + "'>Tags: </div>";
     $(this).append($tag_link);
     // Get the tags, woo.
     get_tags($href);
